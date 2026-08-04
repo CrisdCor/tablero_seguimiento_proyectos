@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 const links = [
   { to: "/", label: "Resumen", hint: "Vencidas · hoy · próximos", accent: "var(--blue)" },
   { to: "/equipo", label: "Equipo", hint: "Métricas por persona", accent: "var(--green)" },
+  { to: "/detalle", label: "Detalle", hint: "Tareas filtrables", accent: "var(--amber)" },
 ];
 
 export default function Sidebar() {
