@@ -9,10 +9,10 @@ export default function DetailPage() {
   const { taskModel, projects, loading } = useDashboardData();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const responsable = searchParams.get("responsable") || "";
-  const estado = searchParams.get("estado") || "";
-  const proyecto = searchParams.get("proyecto") || "";
+  const lider = searchParams.get("lider") || "";
   const estadoProyecto = searchParams.get("estadoProyecto") || "";
+  const proyecto = searchParams.get("proyecto") || "";
+  const estado = searchParams.get("estado") || "";
   const vista = searchParams.get("vista") || "";
 
   const tasks = taskModel?.tasks || [];
@@ -23,9 +23,15 @@ export default function DetailPage() {
     return map;
   }, [projects]);
 
-  const responsables = useMemo(
-    () => Array.from(new Set(tasks.map((t) => t.responsable).filter((r) => r && r !== "—"))).sort(),
-    [tasks]
+  const projectLiderMap = useMemo(() => {
+    const map = new Map();
+    projects.forEach((p) => map.set(p.proyecto, p.lider));
+    return map;
+  }, [projects]);
+
+  const lideres = useMemo(
+    () => Array.from(new Set(projects.map((p) => p.lider).filter(Boolean))).sort(),
+    [projects]
   );
   const proyectos = useMemo(
     () => Array.from(new Set(tasks.map((t) => t.proyecto))).sort(),
@@ -34,10 +40,10 @@ export default function DetailPage() {
 
   const filtered = useMemo(() => {
     return tasks
-      .filter((t) => !responsable || t.responsable === responsable)
-      .filter((t) => !estado || t.estado === estado)
-      .filter((t) => !proyecto || t.proyecto === proyecto)
+      .filter((t) => !lider || projectLiderMap.get(t.proyecto) === lider)
       .filter((t) => !estadoProyecto || projectStatusMap.get(t.proyecto) === estadoProyecto)
+      .filter((t) => !proyecto || t.proyecto === proyecto)
+      .filter((t) => !estado || t.estado === estado)
       .filter((t) => {
         if (!vista) return true;
         if (vista === "vencidas") return !t.closed && t.diasRestantes !== null && t.diasRestantes < 0;
@@ -52,7 +58,7 @@ export default function DetailPage() {
         if (b.diasRestantes === null) return -1;
         return a.diasRestantes - b.diasRestantes;
       });
-  }, [tasks, responsable, estado, proyecto, estadoProyecto, vista, projectStatusMap]);
+  }, [tasks, lider, estadoProyecto, proyecto, estado, vista, projectLiderMap, projectStatusMap]);
 
   const updateParams = (patch) => {
     const next = new URLSearchParams(searchParams);
@@ -73,12 +79,12 @@ export default function DetailPage() {
   return (
     <Panel title="Detalle de tareas" accent="var(--blue)" count={filtered.length}>
       <TaskFilterBar
-        responsables={responsables}
+        lideres={lideres}
         proyectos={proyectos}
-        responsable={responsable}
-        estado={estado}
-        proyecto={proyecto}
+        lider={lider}
         estadoProyecto={estadoProyecto}
+        proyecto={proyecto}
+        estado={estado}
         vista={vista}
         onChange={updateParams}
         onReset={resetFilters}

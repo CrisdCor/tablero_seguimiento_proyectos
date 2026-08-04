@@ -7,30 +7,41 @@ const SERIES = [
   { key: "finalizadas", name: "Finalizadas", color: "#21875a" },
 ];
 
-export default function WorkloadChart({ byProject }) {
-  if (byProject.length === 0) {
+export default function TeamWorkloadChart({ people }) {
+  const data = people
+    .map((p) => ({
+      nombre: p.nombre,
+      vencidas: p.kpis.vencidas,
+      hoy: p.kpis.hoy,
+      proximos: p.kpis.proximos,
+      finalizadas: p.kpis.finalizadas,
+      total: p.kpis.total,
+    }))
+    .filter((p) => p.total > 0)
+    .sort((a, b) => b.total - a.total);
+
+  if (data.length === 0) {
     return <div className="empty-state">Sin tareas asignadas para graficar.</div>;
   }
 
-  const height = Math.max(160, byProject.length * 44);
-
   return (
-    <div style={{ width: "100%", height }}>
+    <div style={{ width: "100%", height: 300 }}>
       <ResponsiveContainer>
-        <BarChart data={byProject} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e5eb" horizontal={false} />
+        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 4 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e2e5eb" vertical={false} />
           <XAxis
-            type="number"
-            allowDecimals={false}
-            tick={{ fontSize: 11, fill: "#5c6675", fontFamily: "IBM Plex Mono, monospace" }}
+            dataKey="nombre"
+            tick={{ fontSize: 11, fill: "#182233", fontFamily: "IBM Plex Mono, monospace" }}
             axisLine={{ stroke: "#c9cdd6" }}
             tickLine={false}
+            interval={0}
+            angle={-20}
+            textAnchor="end"
+            height={56}
           />
           <YAxis
-            type="category"
-            dataKey="proyecto"
-            width={140}
-            tick={{ fontSize: 11.5, fill: "#182233", fontFamily: "IBM Plex Mono, monospace" }}
+            allowDecimals={false}
+            tick={{ fontSize: 11, fill: "#5c6675", fontFamily: "IBM Plex Mono, monospace" }}
             axisLine={{ stroke: "#c9cdd6" }}
             tickLine={false}
           />

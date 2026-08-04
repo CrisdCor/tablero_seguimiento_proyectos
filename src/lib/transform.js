@@ -15,6 +15,33 @@ function isFinalized(estado) {
   return e.startsWith("finaliz") || e.startsWith("complet");
 }
 
+export function deriveTaskViews(tasks) {
+  const withDueDate = tasks.filter((t) => t.fechaCompromiso);
+
+  const vencidas = withDueDate
+    .filter((t) => !t.closed && t.diasRestantes < 0)
+    .map((t) => ({ ...t, diasVencida: Math.abs(t.diasRestantes) }))
+    .sort((a, b) => b.diasVencida - a.diasVencida);
+
+  const hoy = withDueDate.filter((t) => !t.closed && t.diasRestantes === 0);
+
+  const proximos = withDueDate
+    .filter((t) => !t.closed && t.diasRestantes > 0 && t.diasRestantes <= UPCOMING_WINDOW_DAYS)
+    .sort((a, b) => a.diasRestantes - b.diasRestantes);
+
+  const finalizadas = tasks.filter((t) => t.finalized);
+
+  const summary = {
+    total: tasks.length,
+    hoy: hoy.length,
+    proximos: proximos.length,
+    vencidas: vencidas.length,
+    finalizadas: finalizadas.length,
+  };
+
+  return { vencidas, hoy, proximos, finalizadas, summary };
+}
+
 export function buildTaskModel(rawTasks) {
   const today = startOfDay(new Date());
 
@@ -40,30 +67,7 @@ export function buildTaskModel(rawTasks) {
     };
   });
 
-  const withDueDate = tasks.filter((t) => t.fechaCompromiso);
-
-  const vencidas = withDueDate
-    .filter((t) => !t.closed && t.diasRestantes < 0)
-    .map((t) => ({ ...t, diasVencida: Math.abs(t.diasRestantes) }))
-    .sort((a, b) => b.diasVencida - a.diasVencida);
-
-  const hoy = withDueDate.filter((t) => !t.closed && t.diasRestantes === 0);
-
-  const proximos = withDueDate
-    .filter((t) => !t.closed && t.diasRestantes > 0 && t.diasRestantes <= UPCOMING_WINDOW_DAYS)
-    .sort((a, b) => a.diasRestantes - b.diasRestantes);
-
-  const finalizadas = tasks.filter((t) => t.finalized);
-
-  const summary = {
-    total: tasks.length,
-    hoy: hoy.length,
-    proximos: proximos.length,
-    vencidas: vencidas.length,
-    finalizadas: finalizadas.length,
-  };
-
-  return { tasks, vencidas, hoy, proximos, finalizadas, summary };
+  return { tasks, ...deriveTaskViews(tasks) };
 }
 
 function computeProjectStatus(project) {
