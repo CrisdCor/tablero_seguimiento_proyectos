@@ -9,7 +9,13 @@ function dueChip(task) {
   return <span className="chip chip-blue">Faltan {task.diasRestantes}d</span>;
 }
 
-export default function AllTasksTable({ tasks }) {
+function projectStatusChipClass(estado) {
+  if (estado === "Atención") return "chip-red";
+  if (estado === "Finalizado") return "chip-green";
+  return "chip-blue";
+}
+
+export default function AllTasksTable({ tasks, projectStatusMap }) {
   if (tasks.length === 0) {
     return <div className="empty-state">No hay tareas que coincidan con los filtros.</div>;
   }
@@ -29,21 +35,32 @@ export default function AllTasksTable({ tasks }) {
           </tr>
         </thead>
         <tbody>
-          {tasks.map((t) => (
-            <tr key={t.id}>
-              <td>{t.proyecto}</td>
-              <td>{t.tarea}</td>
-              <td className="cell-muted">{t.responsable}</td>
-              <td>
-                <span className={`chip ${priorityChipClass(t.prioridad)}`}>{t.prioridad || "—"}</span>
-              </td>
-              <td>
-                <span className={`chip ${statusChipClass(t.estado)}`}>{t.estado || "—"}</span>
-              </td>
-              <td className="cell-muted">{formatDate(t.fechaCompromiso)}</td>
-              <td>{dueChip(t)}</td>
-            </tr>
-          ))}
+          {tasks.map((t) => {
+            const projectStatus = projectStatusMap?.get(t.proyecto);
+            return (
+              <tr key={t.id}>
+                <td>
+                  {t.proyecto}
+                  {projectStatus && (
+                    <>
+                      {" "}
+                      <span className={`chip ${projectStatusChipClass(projectStatus)}`}>{projectStatus}</span>
+                    </>
+                  )}
+                </td>
+                <td>{t.tarea}</td>
+                <td className="cell-muted">{t.responsable}</td>
+                <td>
+                  <span className={`chip ${priorityChipClass(t.prioridad)}`}>{t.prioridad || "—"}</span>
+                </td>
+                <td>
+                  <span className={`chip ${statusChipClass(t.estado)}`}>{t.estado || "—"}</span>
+                </td>
+                <td className="cell-muted">{formatDate(t.fechaCompromiso)}</td>
+                <td>{dueChip(t)}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

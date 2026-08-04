@@ -66,22 +66,33 @@ export function buildTaskModel(rawTasks) {
   return { tasks, vencidas, hoy, proximos, finalizadas, summary };
 }
 
+function computeProjectStatus(project) {
+  if (project.vencidas > 0) return "Atención";
+  if (project.tareas > 0 && project.finalizadas === project.tareas) return "Finalizado";
+  if (project.avance >= 100) return "Finalizado";
+  return "En proceso";
+}
+
 export function buildProjectModel(rawProjects) {
   return rawProjects
-    .map((row) => ({
-      proyecto: (row["Proyecto"] || "Sin proyecto").trim(),
-      lider: (row["Líder de Proyecto"] || "").trim(),
-      fechaObjetivo: parseSheetDate(row["Fecha Objetivo"]),
-      estado: (row["Estado"] || "").trim(),
-      avance: parsePercent(row["Avance"]),
-      tareas: Number(row["Tareas"]) || 0,
-      finalizadas: Number(row["Finalizadas"]) || 0,
-      vencidas: Number(row["Vencidas"]) || 0,
-      pendientes: Number(row["Pendientes"]) || 0,
-      enProceso: Number(row["En Proceso"]) || 0,
-      enEspera: Number(row["En Espera"]) || 0,
-      bloqueadas: Number(row["Bloqueadas"]) || 0,
-      canceladas: Number(row["Canceladas"]) || 0,
-    }))
+    .map((row) => {
+      const project = {
+        proyecto: (row["Proyecto"] || "Sin proyecto").trim(),
+        lider: (row["Líder de Proyecto"] || "").trim(),
+        fechaObjetivo: parseSheetDate(row["Fecha Objetivo"]),
+        estado: (row["Estado"] || "").trim(),
+        avance: parsePercent(row["Avance"]),
+        tareas: Number(row["Tareas"]) || 0,
+        finalizadas: Number(row["Finalizadas"]) || 0,
+        vencidas: Number(row["Vencidas"]) || 0,
+        pendientes: Number(row["Pendientes"]) || 0,
+        enProceso: Number(row["En Proceso"]) || 0,
+        enEspera: Number(row["En Espera"]) || 0,
+        bloqueadas: Number(row["Bloqueadas"]) || 0,
+        canceladas: Number(row["Canceladas"]) || 0,
+      };
+      project.estadoGenerado = computeProjectStatus(project);
+      return project;
+    })
     .sort((a, b) => b.vencidas - a.vencidas || a.proyecto.localeCompare(b.proyecto));
 }

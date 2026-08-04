@@ -1,4 +1,5 @@
 const ESTADOS = ["Pendiente", "En proceso", "En espera", "Bloqueada", "Finalizada", "Cancelada"];
+const ESTADOS_PROYECTO = ["Finalizado", "Atención", "En proceso"];
 
 const VISTAS = [
   { key: "", label: "Todas" },
@@ -14,6 +15,7 @@ export default function TaskFilterBar({
   responsable,
   estado,
   proyecto,
+  estadoProyecto,
   vista,
   onChange,
   onReset,
@@ -69,6 +71,22 @@ export default function TaskFilterBar({
           {proyectos.map((p) => (
             <option key={p} value={p}>
               {p}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="filter-field">
+        <label htmlFor="f-estado-proyecto">Estado del proyecto</label>
+        <select
+          id="f-estado-proyecto"
+          value={estadoProyecto}
+          onChange={(e) => onChange({ estadoProyecto: e.target.value })}
+        >
+          <option value="">Todos</option>
+          {ESTADOS_PROYECTO.map((e) => (
+            <option key={e} value={e}>
+              {e}
             </option>
           ))}
         </select>

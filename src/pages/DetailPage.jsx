@@ -6,15 +6,22 @@ import AllTasksTable from "../components/AllTasksTable";
 import { useDashboardData } from "../context/DataContext";
 
 export default function DetailPage() {
-  const { taskModel, loading } = useDashboardData();
+  const { taskModel, projects, loading } = useDashboardData();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const responsable = searchParams.get("responsable") || "";
   const estado = searchParams.get("estado") || "";
   const proyecto = searchParams.get("proyecto") || "";
+  const estadoProyecto = searchParams.get("estadoProyecto") || "";
   const vista = searchParams.get("vista") || "";
 
   const tasks = taskModel?.tasks || [];
+
+  const projectStatusMap = useMemo(() => {
+    const map = new Map();
+    projects.forEach((p) => map.set(p.proyecto, p.estadoGenerado));
+    return map;
+  }, [projects]);
 
   const responsables = useMemo(
     () => Array.from(new Set(tasks.map((t) => t.responsable).filter((r) => r && r !== "—"))).sort(),
@@ -30,6 +37,7 @@ export default function DetailPage() {
       .filter((t) => !responsable || t.responsable === responsable)
       .filter((t) => !estado || t.estado === estado)
       .filter((t) => !proyecto || t.proyecto === proyecto)
+      .filter((t) => !estadoProyecto || projectStatusMap.get(t.proyecto) === estadoProyecto)
       .filter((t) => {
         if (!vista) return true;
         if (vista === "vencidas") return !t.closed && t.diasRestantes !== null && t.diasRestantes < 0;
@@ -44,7 +52,7 @@ export default function DetailPage() {
         if (b.diasRestantes === null) return -1;
         return a.diasRestantes - b.diasRestantes;
       });
-  }, [tasks, responsable, estado, proyecto, vista]);
+  }, [tasks, responsable, estado, proyecto, estadoProyecto, vista, projectStatusMap]);
 
   const updateParams = (patch) => {
     const next = new URLSearchParams(searchParams);
@@ -70,13 +78,14 @@ export default function DetailPage() {
         responsable={responsable}
         estado={estado}
         proyecto={proyecto}
+        estadoProyecto={estadoProyecto}
         vista={vista}
         onChange={updateParams}
         onReset={resetFilters}
         count={filtered.length}
         total={tasks.length}
       />
-      <AllTasksTable tasks={filtered} />
+      <AllTasksTable tasks={filtered} projectStatusMap={projectStatusMap} />
     </Panel>
   );
 }
