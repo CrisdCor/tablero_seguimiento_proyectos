@@ -104,6 +104,9 @@ export default function GanttChart({ tasks }) {
                   title={`${formatDate(start)} → ${formatDate(t.fechaCompromiso)}`}
                 />
               </div>
+              <div className="gantt-bar-dates">
+                {formatDate(start)} → {formatDate(t.fechaCompromiso)}
+              </div>
             </div>
           </div>
         );

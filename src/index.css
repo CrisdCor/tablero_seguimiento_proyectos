@@ -33,6 +33,7 @@ html,
 body,
 #root {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -177,11 +178,14 @@ body {
     position: static;
     flex-direction: row;
     align-items: center;
-    gap: 14px;
-    overflow-x: auto;
+    gap: 10px 14px;
+    flex-wrap: wrap;
+    overflow-x: visible;
   }
   .sidebar-links {
     flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .sidebar-footer {
     display: none;
@@ -1017,4 +1021,147 @@ button:focus-visible {
 
 .dashboard-filter-bar .filter-bar {
   padding: 10px 16px 14px;
+}
+
+.gantt-bar-dates {
+  display: none;
+}
+
+/* ========================================================
+   MÓVIL: layout de una sola columna, sin overflow horizontal
+   ======================================================== */
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 16px 12px 40px;
+  }
+
+  .app-header {
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+  }
+
+  .app-title {
+    font-size: 18px;
+  }
+
+  .header-status {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Tiles y KPIs a una o dos columnas, nunca comprimidos */
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .person-list {
+    max-height: 280px;
+  }
+
+  /* Filtros apilados, cada campo a lo ancho completo */
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .filter-field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .filter-field select {
+    width: 100%;
+  }
+
+  .filter-meta {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .dashboard-filter-bar .filter-bar {
+    padding: 10px 12px 12px;
+  }
+
+  .filter-bar-wrap {
+    padding: 12px 12px 4px;
+  }
+
+  /* Tablas: reducir relleno para aprovechar el ancho, el scroll
+     horizontal queda contenido dentro de .table-scroll, no en la página */
+  .data-table th,
+  .data-table td {
+    padding: 8px 10px;
+  }
+
+  /* Gantt: de filas tipo tabla a tarjetas apiladas por tarea */
+  .gantt-header-row {
+    display: none;
+  }
+
+  .gantt-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 12px;
+  }
+
+  .gantt-col-proyecto,
+  .gantt-col-tarea,
+  .gantt-col-estado,
+  .gantt-timeline {
+    width: 100%;
+    min-width: 0;
+    flex: none;
+    padding: 0;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .gantt-col-proyecto {
+    font-weight: 600;
+    color: var(--ink);
+    order: 1;
+  }
+
+  .gantt-col-tarea {
+    order: 2;
+  }
+
+  .gantt-col-estado {
+    order: 3;
+  }
+
+  .gantt-timeline {
+    order: 4;
+    padding-top: 4px;
+  }
+
+  .gantt-bar-dates {
+    display: block;
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    margin-top: 4px;
+  }
+
+  .gantt-legend {
+    padding: 10px 12px;
+    gap: 10px 14px;
+  }
 }
