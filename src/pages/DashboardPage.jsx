@@ -10,12 +10,18 @@ import DashboardFilterBar from "../components/DashboardFilterBar";
 import { useDashboardData } from "../context/DataContext";
 import { deriveTaskViews } from "../lib/transform";
 
+function parseList(searchParams, key) {
+  const raw = searchParams.get(key);
+  return raw ? raw.split(",").filter(Boolean) : [];
+}
+
 export default function DashboardPage() {
   const { taskModel, projects, loading } = useDashboardData();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const responsable = searchParams.get("responsable") || "";
-  const proyecto = searchParams.get("proyecto") || "";
+  const responsable = parseList(searchParams, "responsable");
+  const lider = parseList(searchParams, "lider");
+  const proyecto = parseList(searchParams, "proyecto");
 
   const tasks = taskModel?.tasks || [];
 
@@ -23,31 +29,51 @@ export default function DashboardPage() {
     () => Array.from(new Set(tasks.map((t) => t.responsable).filter((r) => r && r !== "—"))).sort(),
     [tasks]
   );
+  const lideres = useMemo(
+    () => Array.from(new Set(projects.map((p) => p.lider).filter(Boolean))).sort(),
+    [projects]
+  );
   const proyectos = useMemo(
     () => Array.from(new Set(tasks.map((t) => t.proyecto))).sort(),
     [tasks]
   );
 
+  const projectLiderMap = useMemo(() => {
+    const map = new Map();
+    projects.forEach((p) => map.set(p.proyecto, p.lider));
+    return map;
+  }, [projects]);
+
   const filteredTasks = useMemo(
     () =>
       tasks
-        .filter((t) => !responsable || t.responsable === responsable)
-        .filter((t) => !proyecto || t.proyecto === proyecto),
-    [tasks, responsable, proyecto]
+        .filter((t) => responsable.length === 0 || responsable.includes(t.responsable))
+        .filter((t) => proyecto.length === 0 || proyecto.includes(t.proyecto))
+        .filter((t) => lider.length === 0 || lider.includes(projectLiderMap.get(t.proyecto))),
+    [tasks, responsable, proyecto, lider, projectLiderMap]
   );
 
   const views = useMemo(() => deriveTaskViews(filteredTasks), [filteredTasks]);
 
   const filteredProjects = useMemo(
-    () => projects.filter((p) => !proyecto || p.proyecto === proyecto),
-    [projects, proyecto]
+    () =>
+      projects
+        .filter((p) => proyecto.length === 0 || proyecto.includes(p.proyecto))
+        .filter((p) => lider.length === 0 || lider.includes(p.lider)),
+    [projects, proyecto, lider]
   );
 
   const updateParams = (patch) => {
     const next = new URLSearchParams(searchParams);
     Object.entries(patch).forEach(([key, value]) => {
-      if (value) next.set(key, value);
-      else next.delete(key);
+      if (Array.isArray(value)) {
+        if (value.length > 0) next.set(key, value.join(","));
+        else next.delete(key);
+      } else if (value) {
+        next.set(key, value);
+      } else {
+        next.delete(key);
+      }
     });
     setSearchParams(next);
   };
@@ -63,8 +89,10 @@ export default function DashboardPage() {
     <>
       <DashboardFilterBar
         responsables={responsables}
+        lideres={lideres}
         proyectos={proyectos}
         responsable={responsable}
+        lider={lider}
         proyecto={proyecto}
         onChange={updateParams}
         onReset={resetFilters}

@@ -1,41 +1,32 @@
+import MultiSelect from "./MultiSelect";
+
 export default function DashboardFilterBar({
   responsables,
+  lideres,
   proyectos,
   responsable,
+  lider,
   proyecto,
   onChange,
   onReset,
 }) {
-  const active = Boolean(responsable || proyecto);
+  const active = responsable.length > 0 || lider.length > 0 || proyecto.length > 0;
   return (
     <div className="filter-bar-wrap dashboard-filter-bar">
       <div className="filter-bar">
         <div className="filter-field">
-          <label htmlFor="d-responsable">Responsable</label>
-          <select
-            id="d-responsable"
-            value={responsable}
-            onChange={(e) => onChange({ responsable: e.target.value })}
-          >
-            <option value="">Todos</option>
-            {responsables.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
+          <label>Responsable</label>
+          <MultiSelect options={responsables} selected={responsable} onChange={(v) => onChange({ responsable: v })} />
         </div>
 
         <div className="filter-field">
-          <label htmlFor="d-proyecto">Proyecto</label>
-          <select id="d-proyecto" value={proyecto} onChange={(e) => onChange({ proyecto: e.target.value })}>
-            <option value="">Todos</option>
-            {proyectos.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+          <label>Líder de Proyecto</label>
+          <MultiSelect options={lideres} selected={lider} onChange={(v) => onChange({ lider: v })} />
+        </div>
+
+        <div className="filter-field">
+          <label>Proyecto</label>
+          <MultiSelect options={proyectos} selected={proyecto} onChange={(v) => onChange({ proyecto: v })} />
         </div>
 
         {active && (

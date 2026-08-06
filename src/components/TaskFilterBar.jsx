@@ -1,3 +1,5 @@
+import MultiSelect from "./MultiSelect";
+
 const ESTADOS = ["Pendiente", "En proceso", "En espera", "Bloqueada", "Finalizada", "Cancelada"];
 const ESTADOS_PROYECTO = ["Finalizado", "Atención", "En proceso"];
 
@@ -37,55 +39,27 @@ export default function TaskFilterBar({
       </div>
       <div className="filter-bar">
         <div className="filter-field">
-          <label htmlFor="f-lider">Líder del proyecto</label>
-          <select id="f-lider" value={lider} onChange={(e) => onChange({ lider: e.target.value })}>
-            <option value="">Todos</option>
-            {lideres.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
+          <label>Líder del proyecto</label>
+          <MultiSelect options={lideres} selected={lider} onChange={(v) => onChange({ lider: v })} />
         </div>
 
         <div className="filter-field">
-          <label htmlFor="f-estado-proyecto">Estado del proyecto</label>
-          <select
-            id="f-estado-proyecto"
-            value={estadoProyecto}
-            onChange={(e) => onChange({ estadoProyecto: e.target.value })}
-          >
-            <option value="">Todos</option>
-            {ESTADOS_PROYECTO.map((e) => (
-              <option key={e} value={e}>
-                {e}
-              </option>
-            ))}
-          </select>
+          <label>Estado del proyecto</label>
+          <MultiSelect
+            options={ESTADOS_PROYECTO}
+            selected={estadoProyecto}
+            onChange={(v) => onChange({ estadoProyecto: v })}
+          />
         </div>
 
         <div className="filter-field">
-          <label htmlFor="f-proyecto">Proyecto</label>
-          <select id="f-proyecto" value={proyecto} onChange={(e) => onChange({ proyecto: e.target.value })}>
-            <option value="">Todos</option>
-            {proyectos.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+          <label>Proyecto</label>
+          <MultiSelect options={proyectos} selected={proyecto} onChange={(v) => onChange({ proyecto: v })} />
         </div>
 
         <div className="filter-field">
-          <label htmlFor="f-estado">Estado de tarea</label>
-          <select id="f-estado" value={estado} onChange={(e) => onChange({ estado: e.target.value })}>
-            <option value="">Todos</option>
-            {ESTADOS.map((e) => (
-              <option key={e} value={e}>
-                {e}
-              </option>
-            ))}
-          </select>
+          <label>Estado de tarea</label>
+          <MultiSelect options={ESTADOS} selected={estado} onChange={(v) => onChange({ estado: v })} />
         </div>
 
         <div className="filter-meta">

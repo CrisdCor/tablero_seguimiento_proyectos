@@ -5,14 +5,19 @@ import TaskFilterBar from "../components/TaskFilterBar";
 import AllTasksTable from "../components/AllTasksTable";
 import { useDashboardData } from "../context/DataContext";
 
+function parseList(searchParams, key) {
+  const raw = searchParams.get(key);
+  return raw ? raw.split(",").filter(Boolean) : [];
+}
+
 export default function DetailPage() {
   const { taskModel, projects, loading } = useDashboardData();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const lider = searchParams.get("lider") || "";
-  const estadoProyecto = searchParams.get("estadoProyecto") || "";
-  const proyecto = searchParams.get("proyecto") || "";
-  const estado = searchParams.get("estado") || "";
+  const lider = parseList(searchParams, "lider");
+  const estadoProyecto = parseList(searchParams, "estadoProyecto");
+  const proyecto = parseList(searchParams, "proyecto");
+  const estado = parseList(searchParams, "estado");
   const vista = searchParams.get("vista") || "";
 
   const tasks = taskModel?.tasks || [];
@@ -40,10 +45,10 @@ export default function DetailPage() {
 
   const filtered = useMemo(() => {
     return tasks
-      .filter((t) => !lider || projectLiderMap.get(t.proyecto) === lider)
-      .filter((t) => !estadoProyecto || projectStatusMap.get(t.proyecto) === estadoProyecto)
-      .filter((t) => !proyecto || t.proyecto === proyecto)
-      .filter((t) => !estado || t.estado === estado)
+      .filter((t) => lider.length === 0 || lider.includes(projectLiderMap.get(t.proyecto)))
+      .filter((t) => estadoProyecto.length === 0 || estadoProyecto.includes(projectStatusMap.get(t.proyecto)))
+      .filter((t) => proyecto.length === 0 || proyecto.includes(t.proyecto))
+      .filter((t) => estado.length === 0 || estado.includes(t.estado))
       .filter((t) => {
         if (!vista) return true;
         if (vista === "vencidas") return !t.closed && t.diasRestantes !== null && t.diasRestantes < 0;
@@ -63,8 +68,14 @@ export default function DetailPage() {
   const updateParams = (patch) => {
     const next = new URLSearchParams(searchParams);
     Object.entries(patch).forEach(([key, value]) => {
-      if (value) next.set(key, value);
-      else next.delete(key);
+      if (Array.isArray(value)) {
+        if (value.length > 0) next.set(key, value.join(","));
+        else next.delete(key);
+      } else if (value) {
+        next.set(key, value);
+      } else {
+        next.delete(key);
+      }
     });
     setSearchParams(next);
   };
