@@ -25,3 +25,9 @@ export function parsePercent(raw) {
   if (isNaN(num)) return 0;
   return num <= 1 ? Math.round(num * 100) : Math.round(num);
 }
+
+export function projectStatusChipClass(estado) {
+  if (estado === "Atención") return "chip-red";
+  if (estado === "Finalizado") return "chip-green";
+  return "chip-blue";
+}

@@ -1,5 +1,5 @@
 import { formatDate } from "../lib/dates";
-import { priorityChipClass, statusChipClass } from "../lib/format";
+import { priorityChipClass, statusChipClass, projectStatusChipClass } from "../lib/format";
 
 function dueChip(task) {
   if (task.finalized) return null;
@@ -7,12 +7,6 @@ function dueChip(task) {
   if (task.diasRestantes < 0) return <span className="chip chip-red">Vencida {Math.abs(task.diasRestantes)}d</span>;
   if (task.diasRestantes === 0) return <span className="chip chip-amber">Vence hoy</span>;
   return <span className="chip chip-blue">Faltan {task.diasRestantes}d</span>;
-}
-
-function projectStatusChipClass(estado) {
-  if (estado === "Atención") return "chip-red";
-  if (estado === "Finalizado") return "chip-green";
-  return "chip-blue";
 }
 
 export default function AllTasksTable({ tasks, projectStatusMap }) {
